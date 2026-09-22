@@ -41,14 +41,19 @@ def pack(body: PackRequest, db: Session = Depends(get_db)):
     route = db.get(DeliveryRoute, body.route_id)
     if not route:
         raise HTTPException(404, "路线不存在")
-    # clear previous pack for route
-    old_bags = db.scalars(select(PackBag).where(PackBag.route_id == route.id)).all()
+    existing = db.scalars(select(PackBag).where(PackBag.route_id == route.id)).all()
+    existing_rej = db.scalars(
+        select(RejectRecord).where(RejectRecord.route_id == route.id)
+    ).all()
+    if (existing or existing_rej) and not body.confirm_overwrite:
+        raise HTTPException(409, "该路线已有装袋结果，请确认覆盖后重试")
+    # clear previous pack for route (only after explicit overwrite confirmation)
+    old_bags = existing
     for b in old_bags:
         for it in list(b.items):
             db.delete(it)
         db.delete(b)
-    old_rej = db.scalars(select(RejectRecord).where(RejectRecord.route_id == route.id)).all()
-    for r in old_rej:
+    for r in existing_rej:
         db.delete(r)
     db.flush()
 
