@@ -49,6 +49,7 @@ class RejectOut(BaseModel):
 
 class PackRequest(BaseModel):
     route_id: int
+    confirm_overwrite: bool = False
 
 
 class WeightOut(BaseModel):

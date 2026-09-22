@@ -222,6 +222,7 @@ button {
   background: var(--route-leaf); color: #142008; font-weight: 700;
   border: none; cursor: pointer;
 }
+button.warn { background: var(--reject); color: #fff; }
 .table { width: 100%; border-collapse: collapse; }
 .table th, .table td {
   border-bottom: 1px solid var(--line); padding: .5rem .35rem;
